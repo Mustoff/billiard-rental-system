@@ -13,9 +13,9 @@
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#" >
+        <a class="nav-link" href="{{ route('meja.index') }}" >
             <span class="nav-link-title">Manajemen Meja</span>
-          </a>
+        </a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="#" >
