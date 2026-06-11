@@ -13,10 +13,10 @@ class MejaController extends Controller
     public function index()
     {
         // Mengambil semua data meja dari database
-        $mejas = Meja::all();
+        $meja = Meja::latest()->paginate(10);
         
         // Mengirim data meja ke halaman views/meja/index.blade.php
-        return view('meja.index', compact('mejas'));
+        return view('meja.index', compact('meja'));
     }
 
     /**

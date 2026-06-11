@@ -34,5 +34,19 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/js/tabler.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    @if(session('success'))
+    <script>
+        Swal.fire({
+            title: "Berhasil!",
+            text: "{{ session('success') }}",
+            icon: "success",
+            timer: 2500,
+            showConfirmButton: false,
+            borderRadius: '8px'
+        });
+    </script>
+    @endif
   </body>
 </html>

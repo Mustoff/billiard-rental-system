@@ -27,20 +27,20 @@
                 </tr>
             </thead>
            <tbody>
-                @forelse ($mejas as $m)
+                @forelse ($meja as $m)
                     <tr>
                         <td>{{ $m->nomor_meja }}</td>
                         <td>{{ $m->jenis_meja }}</td>
                         <td>Rp {{ number_format($m->harga_per_jam, 0, ',', '.') }}</td>
-                        <td>
-                            @if($m->status == 'kosong')
-                                <span class="badge bg-success text-white">Kosong</span>
-                            @elseif($m->status == 'dipakai')
-                                <span class="badge bg-danger text-white">Dipakai</span>
-                            @else
-                                <span class="badge bg-warning text-white">Maintenance</span>
-                            @endif
-                        </td>
+                            <td>
+                                @if($m->status == 'kosong')
+                                    <span class="badge bg-success-lt">🟢 Kosong</span>
+                                @elseif($m->status == 'dipakai')
+                                    <span class="badge bg-danger-lt">🔴 Dipakai</span>
+                                @else
+                                    <span class="badge bg-secondary-lt">⚫ Maintenance</span>
+                                @endif
+                            </td>
                         <td>
                             <form action="{{ route('meja.destroy', $m->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus meja ini?')">
                                 <a href="{{ route('meja.edit', $m->id) }}" class="btn btn-sm btn-yellow text-white">Edit</a>
@@ -57,6 +57,18 @@
                 @endforelse
             </tbody>
         </table>
+        </div> 
+        
+        @if($meja->hasPages())
+            <div class="card-footer d-flex align-items-center border-top-0 bg-light">
+                <div class="text-muted small">
+                    Menampilkan {{ $meja->firstItem() }} sampai {{ $meja->lastItem() }} dari {{ $meja->total() }} data
+                </div>
+                <div class="ms-auto">
+                    {{ $meja->links('pagination::bootstrap-5') }}
+                </div>
+            </div>
+        @endif
     </div>
 </div>
 @endsection

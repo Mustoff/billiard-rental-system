@@ -7,6 +7,7 @@ use App\Models\Pelanggan;
 use App\Models\Meja;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class TransaksiController extends Controller
 {
@@ -145,5 +146,32 @@ class TransaksiController extends Controller
         $transaksi->save(); // Perintah ini memaksa MySQL untuk langsung menyimpan data
 
         return redirect()->route('transaksi.index')->with('success', 'Meja telah dikosongkan dan transaksi berhasil diselesaikan.');
+    }
+    /**
+     * Menampilkan Detail Nota Transaksi Kasir
+     */
+    public function show($id)
+    {
+        // Cari data transaksi yang sudah selesai atau sedang bermain beserta relasinya
+        $transaksi = Transaksi::with(['pelanggan', 'meja'])->findOrFail($id);
+        
+        return view('transaksi.show', compact('transaksi'));
+    }
+    /**
+     * Memproses Cetak Struk Nota Format Thermal PDF
+     */
+    public function cetakStruk($id)
+    {
+        $transaksi = Transaksi::with(['pelanggan', 'meja'])->findOrFail($id);
+
+        // Load halaman blade khusus template struk kasir
+        $pdf = Pdf::loadView('pdf.struk', compact('transaksi'));
+
+        // Atur ukuran kertas agar pas dengan printer thermal struk kasir (lebar 80mm / 58mm)
+        // Panjang kertas disesuaikan dinamis agar tidak boros kertas
+        $pdf->setPaper([0, 0, 226, 400], 'portrait'); 
+
+        // Alirkan langsung ke browser (stream) agar kasir bisa langsung cetak tanpa download paksa
+        return $pdf->stream('struk-billiard-' . $transaksi->id . '.pdf');
     }
 }
