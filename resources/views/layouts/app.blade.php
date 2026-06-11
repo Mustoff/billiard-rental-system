@@ -37,16 +37,33 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     @if(session('success'))
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
-        Swal.fire({
-            title: "Berhasil!",
-            text: "{{ session('success') }}",
-            icon: "success",
-            timer: 2500,
-            showConfirmButton: false,
-            borderRadius: '8px'
+        document.addEventListener('DOMContentLoaded', function () {
+            // 1. Notifikasi Sukses
+            @if(session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: "{{ session('success') }}",
+                    showConfirmButton: false,
+                    timer: 2500
+                });
+            @endif
+
+            // 2. Notifikasi Gagal / Eror (Termasuk Pencegah Double Booking kemarin)
+            @if(session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Waduh, Gagal!',
+                    text: "{{ session('error') }}",
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'Ok, Paham'
+                });
+            @endif
         });
     </script>
     @endif
-  </body>
+    </body>
 </html>

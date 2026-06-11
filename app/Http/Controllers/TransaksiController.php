@@ -8,6 +8,7 @@ use App\Models\Meja;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\ActivityLog;
 
 class TransaksiController extends Controller
 {
@@ -36,11 +37,17 @@ class TransaksiController extends Controller
      */
     public function create()
     {
-        $pelanggans = Pelanggan::orderBy('nama', 'asc')->get();
-        
-        // Hanya tampilkan meja yang statusnya 'kosong'
-        $mejas = Meja::where('status', 'kosong')->orderBy('nomor_meja', 'asc')->get();
+        // 1. Ambil SEMUA pelanggan untuk pilihan form
+        $pelanggans = \App\Models\Pelanggan::orderBy('nama', 'asc')->get();
 
+        // 2. Ambil SEMUA meja yang statusnya 'kosong'
+        // Menggunakan orderByRaw LENGTH agar Meja 10 & 11 tidak menyodok ke atas setelah Meja 1
+        $mejas = \App\Models\Meja::where('status', 'kosong')
+            ->orderByRaw('LENGTH(nomor_meja) ASC')
+            ->orderBy('nomor_meja', 'asc')
+            ->get(); // <-- Pastikan pakai get(), jangan pakai paginate() atau take() di sini
+
+        // 3. Lempar data ke halaman form transaksi
         return view('transaksi.create', compact('pelanggans', 'mejas'));
     }
 
@@ -50,9 +57,13 @@ class TransaksiController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'pelanggan_id' => 'required|exists:pelanggans,id',
-            'meja_id'      => 'required|exists:mejas,id',
-            'durasi_jam'   => 'required|numeric|min:0.5',
+            'pelanggan_id' => 'required|exists:pelanggans,id', // Pastikan ID-nya benar ada di tabel pelanggan
+            'meja_id'       => 'required|exists:mejas,id',      // Pastikan ID-nya benar ada di tabel meja
+            'durasi_jam'    => 'required|integer|min:1',       // Minimal sewa 1 jam
+        ], [
+            'pelanggan_id.required' => 'Silakan pilih pelanggan terlebih dahulu!',
+            'meja_id.required'      => 'Silakan tentukan meja billiard yang akan digunakan!',
+            'durasi_jam.required'   => 'Durasi bermain wajib ditentukan!',
         ]);
 
         // 1. Ambil data meja berdasarkan ID yang dipilih kasir
@@ -69,7 +80,7 @@ class TransaksiController extends Controller
         $totalBayar = $request->durasi_jam * $meja->harga_per_jam;
 
         // 5. Buat Data Transaksi Baru
-        Transaksi::create([
+        $transaksi = Transaksi::create([
             'pelanggan_id' => $request->pelanggan_id,
             'meja_id'      => $request->meja_id,
             'jam_mulai'    => $jamMulai,
@@ -84,7 +95,12 @@ class TransaksiController extends Controller
         $meja->update([
             'status' => 'dipakai'
         ]);
-
+        ActivityLog::create([
+            'user_id'    => auth()->id(),
+            'aktivitas'  => 'Buka Meja',
+            'deskripsi'  => auth()->user()->name . ' berhasil membuka ' . $transaksi->meja->nomor_meja . ' untuk pelanggan ' . $transaksi->pelanggan->nama,
+            'ip_address' => request()->ip()
+        ]);
         return redirect()->route('transaksi.index')->with('success', 'Meja berhasil dibuka! Status meja otomatis berubah menjadi DIPAKAI.');
     }
 
@@ -144,7 +160,13 @@ class TransaksiController extends Controller
         $transaksi->status = 'selesai';
         $transaksi->jam_selesai = \Carbon\Carbon::now(); // Catat waktu asli saat permainan dihentikan
         $transaksi->save(); // Perintah ini memaksa MySQL untuk langsung menyimpan data
-
+      
+        ActivityLog::create([
+            'user_id'    => auth()->id(),
+            'aktivitas'  => 'Stop Billing',
+            'deskripsi'  => auth()->user()->name . ' menghentikan paksa/menyelesaikan billing pada ' . $transaksi->meja->nomor_meja,
+            'ip_address' => request()->ip()
+        ]);
         return redirect()->route('transaksi.index')->with('success', 'Meja telah dikosongkan dan transaksi berhasil diselesaikan.');
     }
     /**

@@ -32,15 +32,19 @@ class PelangganController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'nama' => 'required|string|max:255',
-            'nomor_hp' => 'nullable|numeric',
-            'alamat' => 'nullable|string',
+        $validatedData = $request->validate([
+            'nama'      => 'required|string|max:255',
+            'nomor_hp'  => 'required|numeric|digits_between:10,14',
+        ], [
+            'nama.required'     => 'Nama pelanggan wajib diisi!',
+            'nomor_hp.required' => 'Nomor HP wajib diisi!',
+            'nomor_hp.numeric'  => 'Nomor HP harus berupa angka!',
         ]);
 
-        Pelanggan::create($request->all());
+        // Simpan data menggunakan hasil data yang sudah tervalidasi
+        Pelanggan::create($validatedData);
 
-        return redirect()->route('pelanggan.index')->with('success', 'Pelanggan berhasil ditambahkan!');
+        return redirect()->route('pelanggan.index')->with('success', 'Pelanggan baru berhasil didaftarkan!');
     }
 
     public function edit(Pelanggan $pelanggan)

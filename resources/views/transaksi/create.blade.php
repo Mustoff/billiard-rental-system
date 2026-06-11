@@ -38,8 +38,24 @@
         
         <div class="card-footer text-end">
             <a href="{{ route('transaksi.index') }}" class="btn btn-link link-secondary">Batal</a>
-            <button type="submit" id="btn-submit-create" class="btn btn-success">Mulai Bermain & Nyalakan Lampu</button>
+           <button type="submit" id="btn-simpan" class="btn btn-primary">
+                <span id="btn-text">💾 Simpan Billing</span>
+            </button>
         </div>
     </form>
 </div>
+<script>
+    const form = document.getElementById('form-transaksi');
+    const btnSimpan = document.getElementById('btn-simpan');
+    const btnText = document.getElementById('btn-text');
+
+    form.addEventListener('submit', function () {
+        // 1. Kunci tombol agar tidak bisa diklik lagi (Anti Double-Click)
+        btnSimpan.disabled = true;
+        btnSimpan.classList.add('disabled');
+
+        // 2. Ubah teks tombol menjadi indikator memproses
+        btnText.innerHTML = '⏳ Memproses Billing...';
+    });
+</script>
 @endsection

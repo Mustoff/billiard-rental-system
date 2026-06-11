@@ -7,7 +7,16 @@
                 <div class="card-body p-5">
                     
                     <div class="text-center mb-4">
-                        <h1 class="mb-1 font-weight-black tracking-tight text-primary">BILLIARD CENTER</h1>
+                        <div class="header" style="text-align: center;">
+                            @if($webSetting && $webSetting->logo)
+                                <img src="{{ public_path('storage/' . $webSetting->logo) }}" style="width: 80px; height: auto;">
+                            @else
+                                <div style="font-size: 24px; font-weight: bold;">🎱</div>
+                            @endif
+                            
+                            <h2 style="margin: 5px 0;">{{ $webSetting->nama_billiard ?? 'Billiard Rental' }}</h2>
+                            <p style="font-size: 12px; margin: 0;">{{ $webSetting->alamat }} | Telp: {{ $webSetting->no_hp }}</p>
+                        </div>
                         <p class="text-secondary small mb-0">Nota Pembayaran Sewa Meja Prabayar</p>
                         <div class="hr-text my-3">====================</div>
                     </div>
