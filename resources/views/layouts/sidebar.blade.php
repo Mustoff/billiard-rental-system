@@ -3,7 +3,7 @@
     <div class="navbar-brand text-center py-3">
         <a href="{{ route('dashboard') }}" class="text-decoration-none">
             @if($webSetting && $webSetting->logo)
-                <img src="{{ asset('storage/' . $webSetting->logo) }}" alt="Logo" class="navbar-brand-image mb-2" style="max-height: 50px;">
+                <img src="{{ asset('storage/' . $webSetting->logo) }}" alt="Logo" class="navbar-brand-image mb-2" style="height: 80px; object-fit: contain;">
             @else
                 <span class="fs-2">🎱</span>
             @endif

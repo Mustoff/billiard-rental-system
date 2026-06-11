@@ -70,14 +70,23 @@
                             @if($meja->status === 'kosong')
                                 <span class="avatar avatar-md rounded-circle bg-success-lt text-success mb-2" style="font-size: 1.5rem;">🟢</span>
                                 <div class="font-weight-bold text-dark">{{ $meja->nomor_meja }}</div>
+                                <div class="font-weight-bold text-dark">
+                                    Rp {{ number_format($meja->harga_per_jam, 0, ',', '.') }}/jam
+                                </div>
                                 <span class="badge bg-success-lt text-success mt-1 small">Tersedia</span>
                             @elseif($meja->status === 'dipakai')
                                 <span class="avatar avatar-md rounded-circle bg-danger-lt text-danger mb-2" style="font-size: 1.5rem;">🔴</span>
                                 <div class="font-weight-bold text-dark">{{ $meja->nomor_meja }}</div>
+                                <div class="font-weight-bold text-dark">
+                                    Rp {{ number_format($meja->harga_per_jam, 0, ',', '.') }}/jam
+                                </div>
                                 <span class="badge bg-danger-lt text-danger mt-1 small">Main</span>
                             @else
                                 <span class="avatar avatar-md rounded-circle bg-secondary-lt text-secondary mb-2" style="font-size: 1.5rem;">⚫</span>
                                 <div class="font-weight-bold text-dark">{{ $meja->nomor_meja }}</div>
+                                <div class="font-weight-bold text-dark">
+                                    Rp {{ number_format($meja->harga_per_jam, 0, ',', '.') }}/jam
+                                </div>
                                 <span class="badge bg-secondary-lt text-secondary mt-1 small">Maintenance</span>
                             @endif
                         </div>
