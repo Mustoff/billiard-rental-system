@@ -17,8 +17,8 @@ class DashboardController extends Controller
         $totalPelanggan   = Pelanggan::count();
         
         // Hitung omzet hari ini dari transaksi yang sudah selesai/lunas
-        $omzetHariIni     = Transaksi::whereDate('created_at', now()->today())
-                                    ->sum('total_bayar');
+       // Hitung omzet hari ini secara akurat dari jam 00:00 sampai 23:59 saat ini
+        $omzetHariIni = Transaksi::whereDate('created_at', \Carbon\Carbon::today())->sum('total_bayar');
 
         // 2. Ambil SEMUA meja untuk visualisasi indikator real-time (Urut Alami)
         $daftarMeja = Meja::orderByRaw('LENGTH(nomor_meja) ASC')

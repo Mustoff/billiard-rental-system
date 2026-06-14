@@ -29,13 +29,13 @@
                 </div>
             @endif
 
-            <div class="card mb-4 shadow-sm border-0">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="card-title">Daftar Meja Sedang Digunakan</h3>
+            <div class="card mb-4 shadow-sm border-0" style="border-radius: 12px; overflow: hidden;">
+                <div class="card-header text-white" style="background-color: var(--sporty-navy);">
+                    <h3 class="card-title font-weight-bold">Daftar Meja Sedang Digunakan</h3>
                 </div>
                 <div class="table-responsive">
                     <table class="table card-table table-vcenter text-nowrap">
-                        <thead>
+                        <thead class="bg-light">
                             <tr>
                                 <th>Meja</th>
                                 <th>Pelanggan</th>
@@ -49,34 +49,44 @@
                         <tbody>
                             @forelse($transaksiAktif as $t)
                                 <tr id="row-transaksi-{{ $t->id }}">
-                                    <td><strong class="text-primary">{{ $t->meja->nomor_meja }}</strong></td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <span class="indikator-jalan"></span>
+                                            <strong class="text-dark fs-3">{{ $t->meja->nomor_meja }}</strong>
+                                        </div>
+                                    </td>
                                     <td><strong>{{ $t->pelanggan->nama }}</strong></td>
                                     <td>{{ \Carbon\Carbon::parse($t->jam_mulai)->format('H:i') }} WIB</td>
                                     <td>{{ \Carbon\Carbon::parse($t->jam_selesai)->format('H:i') }} WIB</td>
                                     <td>
-                                        <span class="badge bg-md bg-info-lt countdown-timer" 
+                                        <span class="badge countdown-timer px-3 py-2" 
+                                            style="background-color: var(--sporty-cyan); color: white; border-radius: 6px; font-size: 14px;"
                                             data-id="{{ $t->id }}" 
                                             data-meja="{{ $t->meja->nomor_meja }}"
                                             data-target="{{ \Carbon\Carbon::parse($t->jam_selesai)->toISOString() }}">
                                             Menghitung...
                                         </span>
                                     </td>
-                                    <td>Rp {{ number_format($t->total_bayar, 0, ',', '.') }}</td>
+                                    <td class="font-weight-bold">Rp {{ number_format($t->total_bayar, 0, ',', '.') }}</td>
                                     <td class="text-center">
-                                        <div class="d-flex" style="gap: 4px;">
-                                            <a href="{{ route('transaksi.show', $t->id) }}" class="btn btn-sm btn-outline-info">Detail</a>
+                                        <div class="d-flex justify-content-center" style="gap: 8px;">
+                                            <a href="{{ route('transaksi.show', $t->id) }}" class="btn btn-sm" style="color: var(--sporty-cyan); border-color: var(--sporty-cyan);">Detail</a>
 
                                             <form id="form-stop-{{ $t->id }}" action="{{ route('transaksi.destroy', $t->id) }}" method="POST">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger">Stop</button>
+                                                <button type="submit" class="btn btn-sm btn-danger font-weight-bold">Stop</button>
                                             </form>
                                         </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center py-4 text-muted">Semua meja kosong. Belum ada transaksi aktif saat ini.</td>
+                                    <td colspan="7" class="text-center py-5 text-muted">
+                                        <span class="avatar avatar-md rounded-circle bg-light text-muted mb-2">🎱</span>
+                                        <div class="font-weight-bold mt-2">Semua meja kosong</div>
+                                        <div>Belum ada transaksi aktif saat ini.</div>
+                                    </td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -84,6 +94,9 @@
                 </div>
             </div>
 
+             <div class="page-header mb-3">
+                <h2 class="page-title">Riwayat Transaksi</h2>
+            </div>
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-light">
                     <h3 class="card-title text-secondary">Riwayat Transaksi Selesai</h3>

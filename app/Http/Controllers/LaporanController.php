@@ -2,49 +2,60 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Transaksi;
-use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Models\Transaksi; // Sesuaikan dengan nama model transaksi kamu
+use Illuminate\Http\Request;
 
 class LaporanController extends Controller
 {
     public function index(Request $request)
     {
-        // 1. Tangkap parameter filter dari form pencarian di view
-        $tanggalMulai   = $request->get('tanggal_mulai');
-        $tanggalSelesai = $request->get('tanggal_selesai');
-        $keyword        = $request->get('keyword');
+    // 1. Ambal data input filter dari view
+    $tanggalMulai = $request->input('tanggal_mulai');
+    $tanggalSelesai = $request->input('tanggal_selesai');
+    $keyword = $request->input('keyword');
 
-        // 2. Gunakan query builder dasar yang hanya mengambil transaksi berstatus 'selesai'
-        $query = Transaksi::where('status', 'selesai')
-            ->with(['pelanggan', 'meja']) // Eager loading agar aplikasi cepat & hemat database
-            ->latest('jam_selesai');
+    // 2. Inisialisasi query utama (pastikan statusnya sudah selesai/lunas)
+    // Sesuaikan kondisi status sesuai struktur database biliar kamu (misal: 'selesai' atau 'lunas')
+    $query = Transaksi::with(['meja', 'pelanggan'])->where('status', 'selesai');
 
-        // 3. Logika Filter Tanggal (Jika kasir memilih rentang tanggal)
-        if ($tanggalMulai && $tanggalSelesai) {
-            $query->whereBetween('created_at', [
-                Carbon::parse($tanggalMulai)->startOfDay(),
-                Carbon::parse($tanggalSelesai)->endOfDay()
-            ]);
-        }
+    // 3. FIX LOGIKA FILTER TANGGAL: Cek jika input tanggal diisi oleh kasir
+    if ($tanggalMulai && $tanggalSelesai) {
+        // Ambil dari awal hari tanggal mulai (00:00:00) sampai akhir hari tanggal selesai (23:59:59)
+        $start = Carbon::parse($tanggalMulai)->startOfDay();
+        $end = Carbon::parse($tanggalSelesai)->endOfDay();
 
-        // 4. Logika Pencarian Nama Pelanggan atau Nomor Meja
-        if ($keyword) {
-            $query->where(function($q) use ($keyword) {
-                $q->whereHas('pelanggan', function($p) use ($keyword) {
-                    $p->where('nama', 'LIKE', "%{$keyword}%");
-                })->orWhereHas('meja', function($m) use ($keyword) {
-                    $m->where('nomor_meja', 'LIKE', "%{$keyword}%");
-                });
+        $query->whereBetween('jam_selesai', [$start, $end]);
+    } elseif ($tanggalMulai) {
+        $query->where('jam_selesai', '>=', Carbon::parse($tanggalMulai)->startOfDay());
+    } elseif ($tanggalSelesai) {
+        $query->where('jam_selesai', '<=', Carbon::parse($tanggalSelesai)->endOfDay());
+    }
+
+    // 4. Filter berdasarkan keyword pencarian (Nama Pelanggan atau Nomor Meja)
+    if ($keyword) {
+        $query->where(function($q) use ($keyword) {
+            $q->whereHas('pelanggan', function($qp) use ($keyword) {
+                $qp->where('nama', 'like', '%' . $keyword . '%');
+            })->orWhereHas('meja', function($qm) use ($keyword) {
+                $qm->where('nomor_meja', 'like', '%' . $keyword . '%');
             });
-        }
+        });
+    }
 
-        // 5. Hitung Total Pendapatan dari hasil data yang sudah difilter
-        $totalPendapatan = $query->sum('total_bayar');
+    // 5. Eksekusi kalkulasi total pendapatan sesuai filter yang aktif
+    $totalPendapatan = $query->sum('total_bayar');
 
-        // 6. Jalankan Pagination (Tampilkan 10 data per halaman agar rapi)
-        $laporanTransaksi = $query->paginate(10)->withQueryString();
+    // 6. Ambil data dengan pagination untuk tabel rincian
+    $laporanTransaksi = $query->orderBy('jam_selesai', 'desc')->paginate(10);
 
-        return view('laporan.index', compact('laporanTransaksi', 'totalPendapatan', 'tanggalMulai', 'tanggalSelesai', 'keyword'));
+    // 7. Kembalikan data ke view laporan
+    return view('laporan.index', compact(
+        'laporanTransaksi', 
+        'totalPendapatan', 
+        'tanggalMulai', 
+        'tanggalSelesai', 
+        'keyword'
+    ));
     }
 }

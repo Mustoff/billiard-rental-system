@@ -32,19 +32,31 @@ class PelangganController extends Controller
 
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'nama'      => 'required|string|max:255',
-            'nomor_hp'  => 'required|numeric|digits_between:10,14',
-        ], [
-            'nama.required'     => 'Nama pelanggan wajib diisi!',
-            'nomor_hp.required' => 'Nomor HP wajib diisi!',
-            'nomor_hp.numeric'  => 'Nomor HP harus berupa angka!',
+        // 1. Ambil data secara fleksibel (bisa membaca Form biasa ataupun Request JSON AJAX)
+        $nama = $request->input('nama');
+        $nomor_hp = $request->input('nomor_hp');
+
+        // 2. Validasi manual sederhana agar tidak memicu eror redirect 422 bawaan Laravel
+        if (!$nama) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Nama pelanggan wajib diisi!'
+            ], 400);
+        }
+
+        // 3. Simpan data ke dalam database
+        $pelanggan = \App\Models\Pelanggan::create([
+            'nama' => $nama,
+            'nomor_hp' => $nomor_hp,
+            // Jika tabel kamu membutuhkan kolom default lain seperti kode_member, tambahkan di sini
         ]);
 
-        // Simpan data menggunakan hasil data yang sudah tervalidasi
-        Pelanggan::create($validatedData);
-
-        return redirect()->route('pelanggan.index')->with('success', 'Pelanggan baru berhasil didaftarkan!');
+        // 4. Kirim balik respon sukses dalam format JSON agar ditangkap oleh JavaScript Pop-up
+        return response()->json([
+            'success' => true,
+            'id' => $pelanggan->id,
+            'nama' => $pelanggan->nama
+        ]);
     }
 
     public function edit(Pelanggan $pelanggan)

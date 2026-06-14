@@ -1,86 +1,65 @@
 @extends('layouts.app')
-
 @section('content')
-<div class="page-wrapper">
-    <div class="page-body">
-        <div class="container-xl" style="max-width: 600px;"> <div class="card shadow-lg border-0">
+<div class="container-xl mt-4">
+    <div class="mb-4 d-print-none">
+        <h2 class="page-title text-dark font-weight-bold">📄 Detail Billing #TRX-{{ $transaksi->id }}</h2>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="card shadow-sm border-0 mb-4" style="border-radius: 16px; overflow: hidden;">
                 <div class="card-body p-5">
                     
                     <div class="text-center mb-4">
-                        <div class="header" style="text-align: center;">
-                            @if($webSetting && $webSetting->logo)
-                                <img src="{{ public_path('storage/' . $webSetting->logo) }}" style="width: 80px; height: auto;">
-                            @else
-                                <div style="font-size: 24px; font-weight: bold;">🎱</div>
-                            @endif
-                            
-                            <h2 style="margin: 5px 0;">{{ $webSetting->nama_billiard ?? 'Billiard Rental' }}</h2>
-                            <p style="font-size: 12px; margin: 0;">{{ $webSetting->alamat }} | Telp: {{ $webSetting->no_hp }}</p>
-                        </div>
-                        <p class="text-secondary small mb-0">Nota Pembayaran Sewa Meja Prabayar</p>
-                        <div class="hr-text my-3">====================</div>
+                        <h2 class="fw-bold mb-1" style="color: var(--sporty-navy);">{{ $webSetting->nama_billiard ?? 'Billiard Rental' }}</h2>
+                        <p class="text-muted small mb-0">📍 {{ $webSetting->alamat ?? 'Alamat' }}</p>
+                        <p class="text-muted small">📞 {{ $webSetting->no_hp ?? '-' }}</p>
+                        <div style="border-top: 2px dashed #e2e8f0;" class="my-3"></div>
                     </div>
 
-                    <table class="table table-transparent table-vcenter small font-weight-medium">
-                        <tbody>
-                            <tr>
-                                <td class="text-secondary ps-0 py-2">Nama Pelanggan</td>
-                                <td class="text-end font-weight-bold pe-0 py-2">{{ $transaksi->pelanggan->nama }}</td>
-                            </tr>
-                            <tr>
-                                <td class="text-secondary ps-0 py-2">Nomor Meja</td>
-                                <td class="text-end font-weight-bold text-indigo pe-0 py-2">Meja {{ $transaksi->meja->nomor_meja }}</td>
-                            </tr>
-                            <tr>
-                                <td class="text-secondary ps-0 py-2">Harga / Jam</td>
-                                <td class="text-end text-muted pe-0 py-2">Rp {{ number_format($transaksi->meja->harga_per_jam, 0, ',', '.') }}</td>
-                            </tr>
-                            <tr>
-                                <td class="text-secondary ps-0 py-2">Durasi Sewa</td>
-                                <td class="text-end font-weight-bold pe-0 py-2">{{ $transaksi->durasi_menit }} Menit</td>
-                            </tr>
-                            <tr>
-                                <td class="text-secondary ps-0 py-2">Jam Mulai</td>
-                                <td class="text-end pe-0 py-2">{{ \Carbon\Carbon::parse($transaksi->jam_mulai)->format('H:i') }} WIB</td>
-                            </tr>
-                            <tr>
-                                <td class="text-secondary ps-0 py-2">Jam Selesai</td>
-                                <td class="text-end pe-0 py-2">{{ \Carbon\Carbon::parse($transaksi->jam_selesai)->format('H:i') }} WIB</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <div class="hr-text my-3">====================</div>
-
-                    <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded mb-4">
-                        <span class="font-weight-bold text-secondary">TOTAL BAYAR :</span>
-                        <span class="h2 font-weight-black text-success mb-0">
-                            Rp {{ number_format($transaksi->total_bayar, 0, ',', '.') }}
-                        </span>
+                    <div class="row mb-3 small">
+                        <div class="col-6 text-muted">Pelanggan:</div>
+                        <div class="col-6 text-end fw-bold text-dark">{{ $transaksi->pelanggan->nama }}</div>
+                    </div>
+                    <div class="row mb-3 small">
+                        <div class="col-6 text-muted">Meja Biliar:</div>
+                        <div class="col-6 text-end fw-bold text-info fs-3">🎱 {{ $transaksi->meja->nomor_meja }}</div>
+                    </div>
+                    <div class="row mb-3 small">
+                        <div class="col-6 text-muted">Waktu Main:</div>
+                        <div class="col-6 text-end text-dark">
+                            {{ \Carbon\Carbon::parse($transaksi->jam_mulai)->format('H:i') }} - 
+                            {{ \Carbon\Carbon::parse($transaksi->jam_selesai)->format('H:i') }} WIB
+                        </div>
+                    </div>
+                    <div class="row mb-3 small">
+                        <div class="col-6 text-muted">Durasi Paket:</div>
+                        <div class="col-6 text-end fw-bold text-dark">{{ $transaksi->durasi_menit }} Menit</div>
                     </div>
 
-                    <div class="text-center text-secondary small mb-4">
-                        <p class="mb-1 font-weight-bold">Terima Kasih Atas Kunjungan Anda</p>
-                        <p class="small opacity-75">Harap patuhi batas waktu bermain demi kenyamanan bersama.</p>
+                    <div style="border-top: 2px dashed #e2e8f0;" class="my-3"></div>
+
+                    <div class="d-flex justify-content-between align-items-center py-2">
+                        <span class="fw-bold text-uppercase" style="letter-spacing: 0.5px;">Total Bayar (Lunas)</span>
+                        <h2 class="fw-bold mb-0" style="color: var(--sporty-amber);">Rp {{ number_format($transaksi->total_bayar, 0, ',', '.') }}</h2>
                     </div>
 
-                    <div class="row g-2 d-print-none">
-                        <div class="col-6">
-                            <a href="{{ route('transaksi.index') }}" class="btn btn-outline-secondary w-100">
-                                Kembali
-                            </a>
-                        </div>
-                        <div class="col-6">
-                            <a href="{{ route('transaksi.cetak', $transaksi->id) }}" target="_blank" class="btn btn-primary w-100 d-flex align-items-center justify-content-center" style="gap: 4px;">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a1 1 0 0 0 1 -1v-4a1 1 0 0 0 -1 -1h-14a1 1 0 0 0 -1 1v4a1 1 0 0 0 1 1h2" /><path d="M17 9v-4a1 1 0 0 0 -1 -1h-8a1 1 0 0 0 -1 1v4" /><rect x="7" y="13" width="10" height="8" rx="1" /></svg>
-                                Cetak PDF
-                            </a>
-                        </div>
+                    <div style="border-top: 2px dashed #e2e8f0;" class="my-3"></div>
+                    
+                    <div class="text-center mt-4 text-muted small">
+                        <p class="mb-0">✨ Terima Kasih Atas Kunjungan Anda ✨</p>
+                        <p style="font-size: 10px;">Powered by Umar Explains Billing System</p>
                     </div>
 
                 </div>
+                
+                <div class="card-footer bg-light text-center d-print-none py-3">
+                    <button onclick="window.print();" class="btn btn-dark fw-bold px-4" style="border-radius: 8px;">
+                        🖨️ Cetak Struk Nota
+                    </button>
+                    <a href="{{ route('transaksi.index') }}" class="btn btn-outline-secondary ms-2" style="border-radius: 8px;">Kembali</a>
+                </div>
             </div>
-
         </div>
     </div>
 </div>
