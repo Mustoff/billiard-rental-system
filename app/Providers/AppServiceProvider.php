@@ -6,6 +6,7 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\URL;
 use App\Models\Setting;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,6 +24,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Paksa penggunaan HTTPS di lingkungan produksi
+        if ($this->app->environment('production')) {
+        URL::forceScheme('https');
+    }
         // Aktifkan bootstrap pagination
         Paginator::useBootstrap();
 
