@@ -1,9 +1,11 @@
 <?php
 
 namespace App\Providers;
+
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Schema;
 use App\Models\Setting;
 
 class AppServiceProvider extends ServiceProvider
@@ -21,16 +23,23 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Aktifkan bootstrap pagination (opsional jika kamu pakai bootstrap)
+        // Aktifkan bootstrap pagination
         Paginator::useBootstrap();
 
-        // Cek secara aman apakah database terhubung dan tabel 'settings' sudah terbuat
-        if (\Illuminate\Support\Facades\Schema::hasTable('settings')) {
-            $webSetting = Setting::first();
-            View::share('webSetting', $webSetting);
-        } else {
-            // Sediakan objek kosong (Fallback) agar file view tidak melempar eror "Attempt to read property on null"
+        // Mengamankan proses booting aplikasi menggunakan try-catch
+        try {
+            // Cek secara aman apakah database terhubung dan tabel 'settings' sudah terbuat
+            if (Schema::hasTable('settings')) {
+                $webSetting = Setting::first();
+                View::share('webSetting', $webSetting);
+            } else {
+                // Sediakan objek kosong (Fallback) jika tabel settings belum di-migrate
+                View::share('webSetting', new Setting());
+            }
+        } catch (\Exception $e) {
+            // Jika database belum siap/terkoneksi saat menjalankan 'php artisan config:cache',
+            // tangkap erornya secara senyap dan berikan objek kosong sebagai fallback aman.
             View::share('webSetting', new Setting());
         }
     }
-}     
+}
