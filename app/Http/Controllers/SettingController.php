@@ -25,8 +25,8 @@ class SettingController extends Controller
             'logo'          => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        $setting = Setting::firstOrCreate([]); // Ambil data pertama atau buat baru jika kosong
-
+        $setting = Setting::first() ?? new Setting();
+        
         $setting->nama_billiard = $request->nama_billiard;
         $setting->alamat = $request->alamat;
         $setting->no_hp = $request->no_hp;
